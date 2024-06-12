@@ -1,0 +1,3 @@
+.venv
+.data/smiles_77M_6_features.parquet
+.condition_GPT_77M_6C.pth
