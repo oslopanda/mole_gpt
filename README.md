@@ -10,9 +10,9 @@ clone this repo:
 git clone https://github.com/oslopanda/mole_gpt
 ```
 download the training dataset
-https://figshare.com/articles/dataset/smiles_77M_6_features_parquetcondition_GPT_77M_6C/26028922 and put the dataset in /data folder.
+https://figshare.com/articles/dataset/smiles_77M_6_features_parquetcondition_GPT_77M_6C/26028922 and put the dataset in `/data` folder.
 
-download the pre-trained .pth file, if you don't want to train the model again.
+download the pre-trained .pth file at the same place, if you don't want to train the model again.
 https://figshare.com/articles/dataset/smiles_77M_6_features_parquetcondition_GPT_77M_6C/26028922
 
 ## Usage
