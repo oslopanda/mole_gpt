@@ -29,7 +29,6 @@ class SMILESDataset(Dataset):
         indexes.append(EOS_token)  # Append EOS token
         return torch.tensor(indexes, dtype=torch.long)  # Shape: [seq_len]
 
-
 def collate_fn(batch):
     input_tensors, target_tensors, condition_tensors = zip(*batch)
 

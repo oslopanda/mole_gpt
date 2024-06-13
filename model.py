@@ -46,7 +46,7 @@ def masked_cross_entropy(logits, target, length):
     #target = target.unsqueeze(-1)
     #print (target.shape)
     target_flat = target.reshape(-1, 1)
-    #target_flat = target.view(-1, 1)  # Flatten target
+    #target_flat = target.view(-1, 1)  # Flatten target, for some reason view not work needs reshape
 
     losses_flat = -torch.gather(log_probs_flat, dim=1, index=target_flat)  # Compute flat losses
     losses = losses_flat.view(*target.size())  # Reshape losses to match target shape for masking

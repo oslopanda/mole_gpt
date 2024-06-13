@@ -1,8 +1,10 @@
-from rdkit import Chem, DataStructs
-from rdkit.Chem import Draw, Descriptors, AllChem
+from rdkit import Chem
 from tqdm.auto import tqdm
 
 class Lang:
+    """
+    This is the 'language' class for converting between characters and index
+    """
     def __init__(self, name):
         self.name = name
         self.char2index = {}
@@ -26,11 +28,13 @@ class Lang:
 def canonicalize(smiles):
     # Takes a SMILES representation of a chemical
     # and returns a standardised canonical SMILES representation.
+    # use it if your dataset is not canonicalized
     return Chem.MolToSmiles(Chem.MolFromSmiles(smiles))
 
 def validSMILES(smiles):
     # Checks if a given SMILES representation of a chemical is valid.
     # Returns True if it's a valid SMILES string, and False otherwise.
+    # This helping function is not used for training but good for validate generated molecules
     mol = Chem.MolFromSmiles(smiles)
     if mol is None:
         return False
