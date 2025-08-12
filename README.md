@@ -221,12 +221,14 @@ This project is licensed under the MIT License - see the [LICENSE.txt](LICENSE.t
 If you use this work in your research, please cite:
 
 ```bibtex
-@software{gpt4mole,
-  title={GPT4mole: Conditional Molecular Generation with Transformers},
-  author={Your Name},
-  year={2024},
-  url={https://github.com/oslopanda/mole_gpt}
+@misc{xing2025gpt,
+  title = {GPT-like transformer based conditional molecule generator and a high drug-likeness (QED) dataset generation},
+  author = {Wen Xing and Juan Yang},
+  year = {2025},
+  howpublished = {\url{https://chemrxiv.org/engage/chemrxiv/article-details/677e792bfa469535b9306ea3}},
+  note = {Preprint, ChemRxiv, Version 2, posted 8 January 2025, DOI: 10.26434/chemrxiv-2024-tq75v-v2}
 }
+
 ```
 
 ## 🙏 Acknowledgments
