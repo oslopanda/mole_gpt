@@ -237,6 +237,10 @@ If you use this work in your research, please cite:
 - Inspired by the original Transformer architecture
 - Dataset processing utilities adapted from molecular ML best practices
 
+> This is part of project **SAM — Systematic Workflows for AI (Artificial Intelligence) in Chemistry and Materials Research**,  
+> funded by **SINTEF Industry**.
+
+
 ## 📞 Support
 
 For questions and support:
