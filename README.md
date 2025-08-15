@@ -196,6 +196,175 @@ else:
     print("Invalid SMILES")
 ```
 
+## 🧬 Advanced Usage: Molecular Embeddings
+
+GPT4mole can also extract molecular embeddings for downstream tasks like property prediction, similarity search, and clustering. The `embeding.py` module provides comprehensive functionality for these applications.
+
+### Extract Molecular Embeddings
+
+```python
+from embeding import MolecularEmbeddingExtractor
+
+# Initialize the embedding extractor
+extractor = MolecularEmbeddingExtractor()
+
+# Extract embedding without conditions (for similarity search)
+embedding = extractor.get_embedding("CCO", use_conditions=False)
+print(f"Embedding shape: {embedding.shape}")  # torch.Size([512])
+
+# Extract embedding with computed properties
+embedding_with_props, properties = extractor.get_embedding_with_computed_properties("CCO")
+print(f"Properties: {properties}")  # [MW, HeavyAtomCount, RingCount, LogP, QED, SAScore]
+```
+
+### Molecular Similarity Search
+
+```python
+# Compare molecular similarity (structure-based)
+similarity = extractor.compute_similarity(
+    "CCO",           # Ethanol
+    "CCCO",          # Propanol
+    similarity_metric='euclidean',  # Recommended over cosine
+    pooling_strategy='mean'         # Best for chemical interpretation
+)
+print(f"Similarity: {similarity:.3f}")
+
+# Test with very different molecules
+molecules = [
+    ("CCO", "Ethanol"),
+    ("c1ccccc1", "Benzene"),
+    ("CC(=O)O", "Acetic acid"),
+    ("CC(C)CC1=CC=C(C=C1)C(C)C(=O)O", "Ibuprofen")
+]
+
+base_molecule = "CCO"
+for smiles, name in molecules:
+    sim = extractor.compute_similarity(base_molecule, smiles)
+    print(f"Similarity to {name}: {sim:.3f}")
+```
+
+### Property Prediction from Embeddings
+
+```python
+import torch
+import torch.nn as nn
+
+# Create a property prediction model using pre-trained embeddings
+class PropertyPredictor(nn.Module):
+    def __init__(self, embedding_extractor, num_properties=6):
+        super().__init__()
+        self.extractor = embedding_extractor
+        self.predictor = nn.Sequential(
+            nn.Linear(512, 256),
+            nn.ReLU(),
+            nn.Dropout(0.1),
+            nn.Linear(256, num_properties)
+        )
+
+    def forward(self, smiles_list):
+        embeddings = []
+        for smiles in smiles_list:
+            emb = self.extractor.get_embedding(smiles, use_conditions=False)
+            embeddings.append(emb)
+
+        batch_embeddings = torch.stack(embeddings)
+        return self.predictor(batch_embeddings)
+
+# Usage
+predictor = PropertyPredictor(extractor)
+predicted_props = predictor(["CCO", "CCCO", "c1ccccc1"])
+```
+
+### Pooling Strategies for Different Tasks
+
+The embedding extraction supports multiple pooling strategies optimized for different applications:
+
+```python
+# Different pooling strategies
+pooling_options = {
+    'mean': 'Best for similarity search and general use',
+    'max': 'Captures key structural features',
+    'last': 'Uses final token representation',
+    'std': 'Captures sequence variability',
+    'concat': 'Combines mean and max pooling',
+    'std_mean': 'Combines standard deviation and mean'
+}
+
+# Test different strategies
+for strategy, description in pooling_options.items():
+    embedding = extractor.get_embedding("CCO", pooling_strategy=strategy)
+    print(f"{strategy}: {embedding.shape} - {description}")
+```
+
+### Similarity Thresholds for Chemical Applications
+
+Based on extensive testing with Euclidean distance and mean pooling:
+
+```python
+def interpret_similarity(similarity_score):
+    """Interpret molecular similarity scores"""
+    if similarity_score > 0.8:
+        return "Very similar (same scaffold)"
+    elif similarity_score > 0.4:
+        return "Moderately similar (related structures)"
+    elif similarity_score > 0.2:
+        return "Different but chemically related"
+    else:
+        return "Structurally very different"
+
+# Example usage
+sim_score = extractor.compute_similarity("CCO", "c1ccccc1")  # ~0.104
+print(f"Ethanol vs Benzene: {interpret_similarity(sim_score)}")
+```
+
+### Building a Molecular Database
+
+```python
+# Create a searchable molecular database
+class MolecularDatabase:
+    def __init__(self, extractor):
+        self.extractor = extractor
+        self.molecules = []
+        self.embeddings = []
+
+    def add_molecule(self, smiles, metadata=None):
+        embedding = self.extractor.get_embedding(smiles, use_conditions=False)
+        if embedding is not None:
+            self.molecules.append({'smiles': smiles, 'metadata': metadata})
+            self.embeddings.append(embedding)
+
+    def search_similar(self, query_smiles, top_k=5, threshold=0.3):
+        query_emb = self.extractor.get_embedding(query_smiles, use_conditions=False)
+        similarities = []
+
+        for i, emb in enumerate(self.embeddings):
+            sim = 1.0 / (1.0 + torch.norm(query_emb - emb).item())
+            if sim >= threshold:
+                similarities.append((sim, self.molecules[i]))
+
+        # Sort by similarity and return top-k
+        similarities.sort(key=lambda x: x[0], reverse=True)
+        return similarities[:top_k]
+
+# Usage
+db = MolecularDatabase(extractor)
+db.add_molecule("CCO", {"name": "Ethanol", "use": "Solvent"})
+db.add_molecule("CCCO", {"name": "Propanol", "use": "Solvent"})
+
+# Search for similar molecules
+results = db.search_similar("CCO", top_k=3)
+for similarity, mol_data in results:
+    print(f"Similarity: {similarity:.3f}, SMILES: {mol_data['smiles']}")
+```
+
+### Key Insights from Embedding Analysis
+
+1. **Euclidean distance** works better than cosine similarity for molecular embeddings
+2. **Mean pooling** provides the best chemical interpretation and similarity ranges
+3. **Structure-only embeddings** (without conditions) are ideal for similarity search
+4. **Conditional embeddings** are better for property prediction tasks
+5. The model learned chemically meaningful representations that correlate with structural similarity
+
 ## 🤝 Contributing
 
 We welcome contributions! Please follow these steps:

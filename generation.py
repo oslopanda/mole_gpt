@@ -112,13 +112,21 @@ def sequence_to_string(sequence, index2char):
     return decoded_string
 
 
-# Example usage: Generate a molecule with specific properties
-# Condition vector contains 6 molecular properties (adjust values as needed)
-# The exact meaning of each feature depends on your training data
-condition = torch.tensor([365, 25, 3, 3, 0.8, 3]).to(device)
+def example_generation():
+    """
+    Example function demonstrating molecule generation.
+    """
+    # Example usage: Generate a molecule with specific properties
+    # Condition vector contains 6 molecular properties (adjust values as needed)
+    # The exact meaning of each feature depends on your training data
+    condition = torch.tensor([365, 25, 3, 3, 0.8, 3]).to(device)
 
-# Generate a new SMILES string
-gen = generate_sequence(decoder_model, start_token=SOS_token, max_length=100,
-                        condition_vector=condition, device=device, temperature=0.5)[:-1]
-decoded_string = sequence_to_string(gen, index2char)
-print("Generated SMILES:", decoded_string)
+    # Generate a new SMILES string
+    gen = generate_sequence(decoder_model, start_token=SOS_token, max_length=100,
+                            condition_vector=condition, device=device, temperature=0.5)[:-1]
+    decoded_string = sequence_to_string(gen, index2char)
+    print("Generated SMILES:", decoded_string)
+
+
+if __name__ == "__main__":
+    example_generation()
